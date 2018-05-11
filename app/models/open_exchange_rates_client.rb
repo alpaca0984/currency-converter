@@ -24,7 +24,7 @@ class OpenExchangeRatesClient
   def fetch_historical_for(date:)
     validate!
     historical_url = base_url.tap do |url|
-      url.path << "/historical/#{date}.json"
+      url.path << "/historical/#{date.to_date.strftime('%F')}.json"
       url.query = "app_id=#{app_id}"
     end
     Net::HTTP.get(historical_url)

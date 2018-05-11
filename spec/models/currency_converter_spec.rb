@@ -13,7 +13,7 @@ RSpec.describe CurrencyConverter do
         currency_from: 'JPY',
         currency_to: 'AUD'
       )
-      expect(converter.convert).to eq(114.56)
+      expect(converter.convert!).to eq(114.56)
     end
   end
 end

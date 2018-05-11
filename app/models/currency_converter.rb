@@ -4,8 +4,8 @@ class CurrencyConverter
   include ActiveModel::Model
   include ActiveModel::Attributes
 
-  attribute :date
-  attribute :amount_in_currency_from, :integer
+  attribute :date, :date
+  attribute :amount_in_currency_from, :decimal
   attribute :currency_from, :string
   attribute :currency_to, :string
 
@@ -15,19 +15,15 @@ class CurrencyConverter
   end
 
   validates :date, presence: true
-  validates :amount_in_currency_from, numericality: { only_integer: true, greater_than: 0 }
+  validates :amount_in_currency_from, numericality: { greater_than: 0 }
   validates :currency_from, :currency_to, inclusion: { in: currencies.keys }
   validate :date_cannot_be_in_the_future
-
-  def api_client
-    @api_client ||= OpenExchangeRatesClient.new
-  end
 
   def api_app_id=(app_id)
     api_client.app_id = app_id
   end
 
-  def convert
+  def convert!
     validate!
 
     ratio_mapping = JSON.parse(api_client.fetch_historical_for(date: date))
@@ -39,13 +35,19 @@ class CurrencyConverter
     (rates[currency_to] / rates[currency_from] * amount_in_currency_from).floor(2)
   end
 
-  # check if `date` has valid format in the same time
+  def convert
+    convert! rescue nil
+  end
+
+  def api_client
+    @api_client ||= OpenExchangeRatesClient.new
+  end
+
+  private
+
   def date_cannot_be_in_the_future
-    date_obj = date.acts_like?(:date) ? date : date.to_date
-    if Date.today < date_obj
-      raise ArgumentError, 'date cannot be in the future'
+    if date.present? && Date.today < date
+      raise ArgumentError, 'Date cannot be in the future'
     end
-  rescue Exception => e
-    errors.add(:date, e.message)
   end
 end
