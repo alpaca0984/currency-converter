@@ -1,4 +1,3 @@
-
 # Currency Converter
 
 This takes exchange ratios from https://openexchangerates.org and convert from different currencies.
@@ -42,13 +41,6 @@ converter.convert
 
 ## Specification
 
-### Response
-
-- date: String|Date
-- amount_in_currency_from: BigDecimal
-- currency_from: String
-- currency_to: String
-
 ### Caching
 
 TODO: implement
@@ -65,7 +57,7 @@ Tasks
     - 1 hour?
     - purge at 00:00:00 every day? etc..[]
 
-## Testing
+### Testing
 
 ```console
 $ bundle exec rspec spec/models/currency_converter_spec.rb
