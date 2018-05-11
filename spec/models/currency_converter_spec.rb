@@ -1,7 +1,7 @@
 require 'spec_helper'
+require 'pry'
 
-require './app/models/currency_converter'
-require './config.rb'
+require './boot.rb'
 
 RSpec.describe CurrencyConverter do
   context 'from 10,000 JPY to AUD at 2017-02-22' do
@@ -13,7 +13,7 @@ RSpec.describe CurrencyConverter do
         currency_from: 'JPY',
         currency_to: 'AUD'
       )
-      expect(converter.convert).to eq(114.56)
+      expect(converter.convert!).to eq(114.56)
     end
   end
 end
