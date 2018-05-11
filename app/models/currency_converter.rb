@@ -1,9 +1,10 @@
-require 'net/http'
-require 'json'
-require 'date'
-
 class OpenExchangeRatesClient
-  attr_writer :app_id
+  include ActiveModel::Validations
+  include ActiveModel::Attributes
+
+  attribute :app_id, :string
+
+  validates :app_id, presence: true
 
   def base_url
     URI::HTTPS.build(
@@ -19,62 +20,63 @@ class OpenExchangeRatesClient
     Net::HTTP.get(currencies_url)
   end
 
-  # TODO: check having @app_id
+  # TODO: check having app_id
   def fetch_historical_for(date:)
+    validate!
     historical_url = base_url.tap do |url|
       url.path << "/historical/#{date}.json"
-      url.query = "app_id=#{@app_id}"
+      url.query = "app_id=#{app_id}"
     end
     Net::HTTP.get(historical_url)
   end
 end
 
 class CurrencyConverter
-  attr_reader :errors
-  attr_writer :date, :amount_in_currency_from, :currency_from, :currency_to
+  include ActiveModel::Model
+  include ActiveModel::Attributes
 
-  def initialize(api_app_id:, date: nil, amount_in_currency_from: nil, currency_from: nil, currency_to: nil)
-    @apiClient = OpenExchangeRatesClient.new
-    @apiClient.app_id = api_app_id
+  attribute :date
+  attribute :amount_in_currency_from, :integer
+  attribute :currency_from, :string
+  attribute :currency_to, :string
 
-    @date = date
-    @amount_in_currency_from = amount_in_currency_from
-    @currency_from = currency_from
-    @currency_to = currency_to
+  # used in validations
+  def self.currencies
+    @currencies ||= JSON.parse(OpenExchangeRatesClient.new.fetch_currencies)
+  end
+
+  validates :date, presence: true
+  validates :amount_in_currency_from, numericality: { only_integer: true, greater_than: 0 }
+  validates :currency_from, :currency_to, inclusion: { in: currencies.keys }
+  validate :date_cannot_be_in_the_future
+
+  def api_client
+    @api_client ||= OpenExchangeRatesClient.new
+  end
+
+  def api_app_id=(app_id)
+    api_client.app_id = app_id
   end
 
   def convert
     validate!
 
-    ratio_mapping = JSON.parse(@apiClient.fetch_historical_for(date: @date))
+    ratio_mapping = JSON.parse(api_client.fetch_historical_for(date: date))
     if ratio_mapping.has_key?('error')
       raise RuntimeError.new(ratio_mapping['description'])
     end
 
     rates = ratio_mapping['rates']
-    (rates[@currency_to] / rates[@currency_from] * @amount_in_currency_from).floor(2)
+    (rates[currency_to] / rates[currency_from] * amount_in_currency_from).floor(2)
   end
 
-  def validate!
-    errors = {}
-
-    unless (Date.parse(@date) rescue false)
-      errors.store(:date, "Invalid date `#{@date}`")
+  # check if `date` has valid format in the same time
+  def date_cannot_be_in_the_future
+    date_obj = date.acts_like?(:date) ? date : date.to_date
+    if Date.today < date_obj
+      raise ArgumentError, 'date cannot be in the future'
     end
-
-    currencies = JSON.parse(@apiClient.fetch_currencies)
-    { currency_from: @currency_from, currency_to: @currency_to }.each do |attr_name, currency|
-      unless currencies.has_key?(currency)
-        errors.store(attr_name, "Invalid currency #{currency}")
-      end
-    end
-
-    if @amount_in_currency_from < 0
-      errors.store(:attr_name, "Amount is less than 0")
-    end
-
-    unless errors.empty?
-      raise ArgumentError.new(errors)
-    end
+  rescue Exception => e
+    errors.add(:date, e.message)
   end
 end
