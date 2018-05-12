@@ -52,7 +52,7 @@ class CurrencyConverter
 
   def date_cannot_be_in_the_future
     if date.present? && Date.today < date
-      raise ArgumentError, 'Date cannot be in the future'
+      errors.add(:date, "Date can't be in the future")
     end
   end
 end
