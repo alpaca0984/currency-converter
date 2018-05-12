@@ -24,18 +24,18 @@ RSpec.describe CurrencyConverter do
     end
 
     context 'with currency_from which is not in the currencies list' do
-      let(:converter) { build(:currency_converter, currency_from: 'FOOBAR') }
-      it { expect { subject }.to raise_error(ActiveModel::ValidationError, /Currency from is not included in the list/) }
+      let(:converter) { build(:currency_converter, currency_from: 'FoO') }
+      it { expect { subject }.to raise_error(ActiveModel::ValidationError, /Currency from accepts only three charactors of upper case/) }
     end
 
     context 'with currency_to which is not in the currencies list' do
-      let(:converter) { build(:currency_converter, currency_to: 'FOOBAR') }
-      it { expect { subject }.to raise_error(ActiveModel::ValidationError, /Currency to is not included in the list/) }
+      let(:converter) { build(:currency_converter, currency_to: 'FOO') }
+      it { expect { subject }.to raise_error(ActiveModel::ValidationError, /Currency to must be valid one/) }
     end
   end
 
-  describe '#convert' do
-    subject { converter.convert }
+  describe '#convert!' do
+    subject { converter.convert! }
 
     context 'the amount currency from 10,000 JPY to AUD at 2017-02-22' do
       let(:converter) { build(:currency_converter) }

@@ -6,20 +6,24 @@ class CurrencyConverter
   include ActiveModel::Model
   include ActiveModel::Attributes
 
+  VALID_CURRENCY_FORMAT = /\A[A-Z]{3}\z/
+
   attribute :date, :date
   attribute :amount_in_currency_from, :decimal
   attribute :currency_from, :string
   attribute :currency_to, :string
 
-  # used in validations
+  validates :date, presence: true
+  validates :amount_in_currency_from, numericality: { greater_than: 0 }
+  validates :currency_from, :currency_to,
+    format: { with: VALID_CURRENCY_FORMAT, message: 'accepts only three charactors of upper case' }
+  validate :date_cannot_be_in_the_future, :currencies_must_be_valid_one
+
+  delegate :currencies, to: :class
+
   def self.currencies
     @currencies ||= JSON.parse(OpenExchangeRatesClient.new.fetch_currencies)
   end
-
-  validates :date, presence: true
-  validates :amount_in_currency_from, numericality: { greater_than: 0 }
-  validates :currency_from, :currency_to, inclusion: { in: currencies.keys }
-  validate :date_cannot_be_in_the_future
 
   def api_app_id=(app_id)
     api_client.app_id = app_id
@@ -51,8 +55,17 @@ class CurrencyConverter
   private
 
   def date_cannot_be_in_the_future
-    if date.present? && Date.today < date
-      errors.add(:date, "Date can't be in the future")
+    if date.present? && (Date.today < date)
+      errors.add(:date, "can't be in the future")
+    end
+  end
+
+  def currencies_must_be_valid_one
+    %i[currency_from currency_to].each do |attr_name|
+      value = public_send(attr_name).to_s
+      if value.match?(VALID_CURRENCY_FORMAT) && !currencies.key?(value)
+        errors.add(attr_name, 'must be valid one')
+      end
     end
   end
 end
