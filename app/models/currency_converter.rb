@@ -29,8 +29,8 @@ class CurrencyConverter
     validate!
 
     ratio_mapping = JSON.parse(api_client.fetch_historical_for(date: date))
-    if ratio_mapping.has_key?('error')
-      raise RuntimeError.new(ratio_mapping['description'])
+    if ratio_mapping.key?('error')
+      raise RuntimeError, ratio_mapping['description']
     end
 
     rates = ratio_mapping['rates']
@@ -38,7 +38,10 @@ class CurrencyConverter
   end
 
   def convert
-    convert! rescue nil
+    convert!
+  rescue StandardError => e
+    # TODO: use `e` for handling errors
+    nil
   end
 
   def api_client
