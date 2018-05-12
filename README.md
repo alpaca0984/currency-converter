@@ -2,6 +2,16 @@
 
 This takes exchange ratios from https://openexchangerates.org and convert from different currencies.
 
+- [Currency Converter](#currency-converter)
+  - [Usage](#usage)
+  - [Questions](#questions)
+  - [Feature requests](#feature-requests)
+  - [Specification](#specification)
+    - [Caching](#caching)
+    - [Testing](#testing)
+  - [My consideration](#my-consideration)
+  - [Author](#author)
+
 ## Usage
 
 First, clone this repository and install ruby gems.
@@ -38,6 +48,23 @@ converter.convert
     - This script has various types of errors, like ArgumentError, Net::HTTPError.
 - [ ] Are they changeable, past historical ratio data of openexchangerates.org?
     - If not, I'm going to cache them somewhere for reducing api requests.
+- [ ] Is there any request to deal with optional params of historical api?
+    - https://docs.openexchangerates.org/docs/historical-json
+
+## Feature requests
+
+format
+
+- [importance][development-cost] content
+    - importance: High, Middle, Low
+    - development-cost: High, Middle, Short
+
+requests
+
+- [ ] [High][High] implement api result cache
+- [ ] [?][Lowj] deal with optional params of historical api
+    - @see https://docs.openexchangerates.org/docs/historical-json
+- [ ] [Low][Middle] retry calling api when it occurred network errors
 
 ## Specification
 
@@ -62,6 +89,25 @@ Tasks
 ```console
 $ bundle exec rspec spec/models/currency_converter_spec.rb
 ```
+
+## My consideration
+
+__Maintenability__
+
+- Used a cutting edge feature of activemodel: `ActiveModel::Attributes` to treat attributes strictly
+- Used only necessary gems to keep this project simple
+- In accordance with Rails file structure to transplant this scripts to Rails easily
+- Applied the principle of single responsibility for classes
+
+__Security__
+
+- Validates parameters strictly because this scripts calculate money
+- Excluded api key from repository
+- Wrote RSpec tests to assure specifications
+
+__Performance__
+
+- _write down later_
 
 ## Author
 
