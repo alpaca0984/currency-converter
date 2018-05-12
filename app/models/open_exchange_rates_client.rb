@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class OpenExchangeRatesClient
   include ActiveModel::Validations
   include ActiveModel::Attributes
@@ -9,7 +11,7 @@ class OpenExchangeRatesClient
   def base_url
     URI::HTTPS.build(
       host: 'openexchangerates.org',
-      path: '/api'
+      path: +'/api' # to append further path later
     )
   end
 

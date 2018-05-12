@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './open_exchange_rates_client'
 
 class CurrencyConverter
