@@ -43,9 +43,7 @@ converter.convert
 ## Questions
 
 - [ ] What is response: `amount_in_currency_to` be expected?
-    - in [historical data](https://docs.openexchangerates.org/docs/historical-json), most currencies ratio have six decimal place. So how about rounding down the result to the six decimal place?
-- [ ] How should I treat errors?
-    - This script has various types of errors, like ArgumentError, Net::HTTPError.
+    - in [historical data](https://docs.openexchangerates.org/docs/historical-json), most currencies ratio have six decimal place. So how about rounding down the result to the six decimal place?(Now, result is rounded down to the two decimal)
 - [ ] Are they changeable, past historical ratio data of openexchangerates.org?
     - If not, I'm going to cache them somewhere for reducing api requests.
 - [ ] Is there any request to deal with optional params of historical api?
