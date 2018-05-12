@@ -34,6 +34,22 @@ RSpec.describe CurrencyConverter do
     end
   end
 
+  describe '.currencies' do
+    subject { CurrencyConverter.currencies }
+    let(:client) { class_double(OpenExchangeRatesClient).as_stubbed_const }
+    before(:each) { CurrencyConverter.instance_variable_set('@currencies', nil) }
+
+    context 'when OpenExchangeRatesClient has fetched result' do
+      before { allow(client).to receive_message_chain(:new, :fetch_currencies).and_return({ 'JPY' => 100 }.to_json) }
+      it { is_expected.to satisfy('be a not empty hash') { |subj| subj.is_a?(Hash) && subj.present? } }
+    end
+
+    context "when OpenExchangeRatesClient hasn't fetched result" do
+      before { allow(client).to receive_message_chain(:new, :fetch_currencies).and_return(nil) }
+      it { expect { subject }.to raise_error(TypeError, /no implicit conversion.*into String/) }
+    end
+  end
+
   describe '#convert!' do
     subject { converter.convert! }
 
