@@ -61,6 +61,7 @@ format
 
 requests
 
+- [ ] [High][Middle] write RSpec tests for many cases
 - [ ] [High][High] implement api result cache
 - [ ] [?][Lowj] deal with optional params of historical api
     - @see https://docs.openexchangerates.org/docs/historical-json
