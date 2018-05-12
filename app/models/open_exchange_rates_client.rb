@@ -11,7 +11,7 @@ class OpenExchangeRatesClient
   def base_url
     URI::HTTPS.build(
       host: 'openexchangerates.org',
-      path: '/api'.dup # to append further strings later
+      path: +'/api' # to append further path later
     )
   end
 

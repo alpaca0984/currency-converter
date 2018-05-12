@@ -3,14 +3,14 @@
 This takes exchange ratios from https://openexchangerates.org and convert from different currencies.
 
 - [Currency Converter](#currency-converter)
-  - [Usage](#usage)
-  - [Questions](#questions)
-  - [Feature requests](#feature-requests)
-  - [Specification](#specification)
-    - [Caching](#caching)
-    - [Testing](#testing)
-  - [My consideration](#my-consideration)
-  - [Author](#author)
+    - [Usage](#usage)
+    - [Questions](#questions)
+    - [Feature requests](#feature-requests)
+    - [Specification](#specification)
+        - [Caching](#caching)
+        - [Testing](#testing)
+    - [My consideration](#my-consideration)
+    - [Author](#author)
 
 ## Usage
 
@@ -108,7 +108,8 @@ __Security__
 
 __Performance__
 
-- _write down later_
+- Use `frozen_string_literal: true` in general and unfreeze string as needed.
+    - @see https://github.com/bbatsov/rubocop/blob/master/lib/rubocop/cop/performance/unfreeze_string.rb#L6
 
 ## Author
 
