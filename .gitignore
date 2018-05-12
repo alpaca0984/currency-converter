@@ -1,5 +1,6 @@
 .solargraph.yml
 /config/secrets.rb
+/.vscode
 
 # ----------------------------------------------------------------
 # https://github.com/github/gitignore/blob/master/Rails.gitignore
