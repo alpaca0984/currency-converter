@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'pry'
-
 require './boot.rb'
+
+RSpec::Matchers.define_negated_matcher :have_items, :be_empty
 
 RSpec.describe CurrencyConverter do
   describe '#errors' do
@@ -41,7 +41,7 @@ RSpec.describe CurrencyConverter do
 
     context 'when OpenExchangeRatesClient has fetched result' do
       before { allow(client).to receive_message_chain(:new, :fetch_currencies).and_return({ 'JPY' => 100 }.to_json) }
-      it { is_expected.to satisfy('be a not empty hash') { |subj| subj.is_a?(Hash) && subj.present? } }
+      it { is_expected.to be_a(Hash).and have_items }
     end
 
     context "when OpenExchangeRatesClient hasn't fetched result" do

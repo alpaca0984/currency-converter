@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry'
-
 require './boot.rb'
 
 RSpec.describe OpenExchangeRatesClient do
