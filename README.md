@@ -4,11 +4,8 @@ This takes exchange ratios from https://openexchangerates.org and convert from d
 
 - [Currency Converter](#currency-converter)
     - [Usage](#usage)
-    - [Questions](#questions)
-    - [Feature requests](#feature-requests)
-    - [Specification](#specification)
-        - [Caching](#caching)
-        - [Testing](#testing)
+    - [Note](#note)
+    - [Testing](#testing)
     - [My consideration](#my-consideration)
     - [Author](#author)
 
@@ -27,7 +24,7 @@ $ mv config/secret.rb.temp config/secret.rb
 $ vim config/secret.rb
 ```
 
-Finally, you can execute calculattion!
+Finally, you can execute calculattion! Result is rounded down to the two decimal.
 ```ruby
 converter = CurrencyConverter.new(
   api_app_id: Config::Secrets.openexchangerates_app_id,
@@ -40,53 +37,17 @@ converter.convert
 # returns 114.56
 ```
 
-## Questions
+## Note
 
-- [ ] What is response: `amount_in_currency_to` be expected?
-    - in [historical data](https://docs.openexchangerates.org/docs/historical-json), most currencies ratio have six decimal place. So how about rounding down the result to the six decimal place?(Now, result is rounded down to the two decimal)
-- [ ] Are they changeable, past historical ratio data of openexchangerates.org?
-    - If not, I'm going to cache them somewhere for reducing api requests.
-- [ ] Is there any request to deal with optional params of historical api?
-    - https://docs.openexchangerates.org/docs/historical-json
+- Not deal with optional params of [historical api](https://docs.openexchangerates.org/docs/historical-json). It's only for paid plan.
+- Past data of [historical api](https://docs.openexchangerates.org/docs/historical-json) will never change. You should cache the results
 
-## Feature requests
+## Testing
 
-format
-
-- [importance][development-cost] content
-    - importance: High, Middle, Low
-    - development-cost: High, Middle, Short
-
-requests
-
-- [ ] [High][Middle] write RSpec tests for many cases
-- [ ] [High][High] implement api result cache
-- [ ] [?][Lowj] deal with optional params of historical api
-    - @see https://docs.openexchangerates.org/docs/historical-json
-- [ ] [Low][Middle] retry calling api when it occurred network errors
-
-## Specification
-
-### Caching
-
-TODO: implement
-
-It's for reducing api accesses(maximum of 1000 requests/month to openexchangerates.org).
-
-Tasks
-- [ ] determine what types cache do I use
-    - file store(ActiveSupport::Cache::FileStore)
-    - memory store(ActiveSupport::Cache::MemoryStore)
-    - Redis etc..
-- [ ] determine expiration time
-    - 30 minutes?
-    - 1 hour?
-    - purge at 00:00:00 every day? etc..[]
-
-### Testing
-
+These explains specifications of this library.
 ```console
 $ bundle exec rspec spec/models/currency_converter_spec.rb
+$ bundle exec rspec spec/models/open_exchange_rates_client_spec.rb
 ```
 
 ## My consideration
@@ -101,13 +62,14 @@ __Maintenability__
 __Security__
 
 - Validates parameters strictly because this scripts calculate money
-- Excluded api key from repository
 - Wrote RSpec tests to assure specifications
+- Excluded api key from repository
 
 __Performance__
 
 - Use `frozen_string_literal: true` in general and unfreeze string as needed.
     - @see https://github.com/bbatsov/rubocop/blob/master/lib/rubocop/cop/performance/unfreeze_string.rb#L6
+- Reducing api requests by validating parameters before calling
 
 ## Author
 
