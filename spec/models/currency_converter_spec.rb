@@ -21,12 +21,12 @@ RSpec.describe CurrencyConverter do
       it { is_expected.to include(amount_in_currency_from: 'must be greater than 0') }
     end
 
-    context 'with currency_from which is not in the currencies list' do
+    context 'with currency_from which is FoO' do
       let(:converter) { build(:currency_converter, currency_from: 'FoO') }
       it { is_expected.to include(currency_from: 'accepts only three charactors of upper case') }
     end
 
-    context 'with currency_to which is not in the currencies list' do
+    context 'with currency_to which is FOO' do
       let(:converter) { build(:currency_converter, currency_to: 'FOO') }
       it { is_expected.to include(currency_to: 'must be valid one') }
     end
