@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require './boot.rb'
-
 RSpec.describe OpenExchangeRatesClient do
   describe '#errors' do
     subject { client.tap(&:valid?).errors.to_h }

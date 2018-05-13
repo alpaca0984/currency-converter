@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require './boot.rb'
-
 RSpec.describe CurrencyConverter do
   describe '#errors' do
     subject { converter.tap(&:valid?).errors.to_h }
