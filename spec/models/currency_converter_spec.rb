@@ -2,8 +2,6 @@
 
 require './boot.rb'
 
-RSpec::Matchers.define_negated_matcher :have_items, :be_empty
-
 RSpec.describe CurrencyConverter do
   describe '#errors' do
     subject { converter.tap(&:valid?).errors.to_h }
@@ -23,12 +21,12 @@ RSpec.describe CurrencyConverter do
       it { is_expected.to include(amount_in_currency_from: 'must be greater than 0') }
     end
 
-    context 'with currency_from which is not in the currencies list' do
+    context 'with currency_from which is FoO' do
       let(:converter) { build(:currency_converter, currency_from: 'FoO') }
       it { is_expected.to include(currency_from: 'accepts only three charactors of upper case') }
     end
 
-    context 'with currency_to which is not in the currencies list' do
+    context 'with currency_to which is FOO' do
       let(:converter) { build(:currency_converter, currency_to: 'FOO') }
       it { is_expected.to include(currency_to: 'must be valid one') }
     end
@@ -40,13 +38,14 @@ RSpec.describe CurrencyConverter do
     before(:each) { CurrencyConverter.instance_variable_set('@currencies', nil) }
 
     context 'when OpenExchangeRatesClient has fetched result' do
-      before { allow(client).to receive_message_chain(:new, :fetch_currencies).and_return({ 'JPY' => 100 }.to_json) }
-      it { is_expected.to be_a(Hash).and have_items }
+      before { allow(client).to receive_message_chain(:new, :fetch_currencies => { 'JPY' => 100 }.to_json) }
+      it { is_expected.to be_a(Hash) }
+      it { is_expected.not_to be_empty }
     end
 
     context "when OpenExchangeRatesClient hasn't fetched result" do
-      before { allow(client).to receive_message_chain(:new, :fetch_currencies).and_return(nil) }
-      it { expect { subject }.to raise_error(TypeError, /no implicit conversion.*into String/) }
+      before { allow(client).to receive_message_chain(:new, :fetch_currencies => nil) }
+      it { expect { subject }.to raise_error(TypeError, /no implicit conversion .+ into String/) }
     end
   end
 
@@ -54,7 +53,12 @@ RSpec.describe CurrencyConverter do
     subject { converter.convert! }
 
     context 'the amount currency from 10,000 JPY to AUD at 2017-02-22' do
-      let(:converter) { build(:currency_converter, date: '2017-02-22', amount_in_currency_from: 10_000, currency_from: 'JPY', currency_to: 'AUD') }
+      let(:converter) do
+        build(
+          :currency_converter,
+          date: '2017-02-22', amount_in_currency_from: 10_000, currency_from: 'JPY', currency_to: 'AUD'
+        )
+      end
       it { is_expected.to eq(114.56) }
     end
   end
