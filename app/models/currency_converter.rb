@@ -21,6 +21,8 @@ class CurrencyConverter
 
   delegate :currencies, to: :class
 
+  class ConversionError < ::StandardError; end
+
   def self.currencies
     @currencies ||= JSON.parse(OpenExchangeRatesClient.new.fetch_currencies)
   end
@@ -34,11 +36,16 @@ class CurrencyConverter
 
     ratio_mapping = JSON.parse(api_client.fetch_historical_for(date: date))
     if ratio_mapping.key?('error')
-      raise RuntimeError, ratio_mapping['description']
+      raise ConversionError, ratio_mapping['description']
     end
 
     rates = ratio_mapping['rates']
-    (rates[currency_to] / rates[currency_from] * amount_in_currency_from).floor(2)
+    nonexist_currencies = [currency_from, currency_to].reject { |ccy| rates.key?(ccy) }
+    if nonexist_currencies.present?
+      raise ConversionError, "Rates didn't exist for #{nonexist_currencies.join(', ')} at #{date}"
+    end
+
+    (rates[currency_to].to_d / rates[currency_from].to_d * amount_in_currency_from).floor(2)
   end
 
   def convert

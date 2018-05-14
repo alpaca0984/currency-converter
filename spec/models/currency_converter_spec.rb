@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require './boot.rb'
-
 RSpec.describe CurrencyConverter do
   describe '#errors' do
     subject { converter.tap(&:valid?).errors.to_h }
@@ -34,32 +32,70 @@ RSpec.describe CurrencyConverter do
 
   describe '.currencies' do
     subject { CurrencyConverter.currencies }
-    let(:client) { class_double(OpenExchangeRatesClient).as_stubbed_const }
+    let(:client_klass) { class_double(OpenExchangeRatesClient).as_stubbed_const }
     before(:each) { CurrencyConverter.instance_variable_set('@currencies', nil) }
 
     context 'when OpenExchangeRatesClient has fetched result' do
-      before { allow(client).to receive_message_chain(:new, :fetch_currencies => { 'JPY' => 100 }.to_json) }
+      before { allow(client_klass).to receive_message_chain(:new, :fetch_currencies => { 'JPY' => 100 }.to_json) }
       it { is_expected.to be_a(Hash) }
       it { is_expected.not_to be_empty }
     end
 
     context "when OpenExchangeRatesClient hasn't fetched result" do
-      before { allow(client).to receive_message_chain(:new, :fetch_currencies => nil) }
+      before { allow(client_klass).to receive_message_chain(:new, :fetch_currencies => nil) }
       it { expect { subject }.to raise_error(TypeError, /no implicit conversion .+ into String/) }
     end
   end
 
   describe '#convert!' do
     subject { converter.convert! }
+    let(:client) { build(:open_exchange_rates_client) }
+    let(:load_json_for) do
+      lambda do |date|
+        file_path = File.expand_path(File.join(File.dirname(__FILE__), '../data', "#{date.strftime('%F')}.json"))
+        File.read(file_path)
+      end
+    end
+    before(:each) do
+      allow(client).to receive(:fetch_historical_for).with(date: converter.date).and_return(load_json_for.(converter.date))
+      allow(converter).to receive(:api_client).and_return(client)
+    end
 
-    context 'the amount currency from 10,000 JPY to AUD at 2017-02-22' do
+    context 'when convert 100 AUD to JPY at 2018-05-10' do
+      let(:converter) do
+        build(
+          :currency_converter,
+          date: '2018-05-10', amount_in_currency_from: 100, currency_from: 'AUD', currency_to: 'JPY'
+        )
+      end
+      it('should eq 8,236.39') { expect(subject).to eq('8_236.39'.to_d) }
+    end
+
+    context 'when convert 10,000 JPY to AUD at 2017-02-22' do
       let(:converter) do
         build(
           :currency_converter,
           date: '2017-02-22', amount_in_currency_from: 10_000, currency_from: 'JPY', currency_to: 'AUD'
         )
       end
-      it { is_expected.to eq(114.56) }
+      it('should eq 114.56') { expect(subject).to eq('114.56'.to_d) }
+    end
+
+    context 'when convert 10,000 JPY to AUD at 1900-01-01' do
+      let(:converter) { build(:currency_converter, date: '1900-01-01') }
+      let(:message_pattern) { /Historical rates for the requested date are not available/ }
+      it { expect { subject }.to raise_error(CurrencyConverter::ConversionError, message_pattern) }
+    end
+
+    context 'when convert 10,000 JPY to ZWL at 2000-01-01' do
+      let(:converter) do
+        build(
+          :currency_converter,
+          date: '2000-01-01', amount_in_currency_from: 10_000, currency_from: 'JPY', currency_to: 'ZWL'
+        )
+      end
+      let(:message_pattern) { /Rates didn't exist for ZWL at 2000-01-01/ }
+      it { expect { subject }.to raise_error(CurrencyConverter::ConversionError, message_pattern) }
     end
   end
 end
