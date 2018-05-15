@@ -45,7 +45,7 @@ class CurrencyConverter
       raise ConversionError, "Rates didn't exist for #{nonexist_currencies.join(', ')} at #{date}"
     end
 
-    (rates[currency_to].to_d / rates[currency_from].to_d * amount_in_currency_from).floor(2)
+    (rates[currency_to].to_d / rates[currency_from].to_d * amount_in_currency_from).floor(2).to_f
   end
 
   def convert

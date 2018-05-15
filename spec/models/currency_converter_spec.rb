@@ -64,7 +64,7 @@ RSpec.describe CurrencyConverter do
           date: '2018-05-10', amount_in_currency_from: 100, currency_from: 'AUD', currency_to: 'JPY'
         )
       end
-      it('should eq 8,236.39') { expect(subject).to eq('8_236.39'.to_d) }
+      it { is_expected.to eq(8_236.39) }
     end
 
     context 'when convert 10,000 JPY to AUD at 2017-02-22' do
@@ -74,7 +74,7 @@ RSpec.describe CurrencyConverter do
           date: '2017-02-22', amount_in_currency_from: 10_000, currency_from: 'JPY', currency_to: 'AUD'
         )
       end
-      it('should eq 114.56') { expect(subject).to eq('114.56'.to_d) }
+      it { is_expected.to eq(114.56) }
     end
 
     context 'when convert 10,000 JPY to AUD at 1900-01-01' do
