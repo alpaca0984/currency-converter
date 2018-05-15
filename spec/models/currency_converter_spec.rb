@@ -3,6 +3,7 @@
 RSpec.describe CurrencyConverter do
   describe '#errors' do
     subject { converter.tap(&:valid?).errors.to_h }
+    before { allow(converter).to receive(:currencies).and_return(JSON.parse(load_json('currencies'))) }
 
     context 'with valid attributes' do
       let(:converter) { build(:currency_converter) }
@@ -36,7 +37,7 @@ RSpec.describe CurrencyConverter do
     before(:each) { CurrencyConverter.instance_variable_set('@currencies', nil) }
 
     context 'when OpenExchangeRatesClient has fetched result' do
-      before { allow(client_klass).to receive_message_chain(:new, :fetch_currencies => { 'JPY' => 100 }.to_json) }
+      before { allow(client_klass).to receive_message_chain(:new, :fetch_currencies => load_json('2018-05-10')) }
       it { is_expected.to be_a(Hash) }
       it { is_expected.not_to be_empty }
     end
@@ -50,15 +51,10 @@ RSpec.describe CurrencyConverter do
   describe '#convert!' do
     subject { converter.convert! }
     let(:client) { build(:open_exchange_rates_client) }
-    let(:load_json_for) do
-      lambda do |date|
-        file_path = File.expand_path(File.join(File.dirname(__FILE__), '../data', "#{date.strftime('%F')}.json"))
-        File.read(file_path)
-      end
-    end
     before(:each) do
-      allow(client).to receive(:fetch_historical_for).with(date: converter.date).and_return(load_json_for.(converter.date))
+      allow(client).to receive(:fetch_historical_for).with(date: converter.date).and_return(load_json(converter.date.strftime('%F')))
       allow(converter).to receive(:api_client).and_return(client)
+      allow(converter).to receive(:currencies).and_return(JSON.parse(load_json('currencies')))
     end
 
     context 'when convert 100 AUD to JPY at 2018-05-10' do

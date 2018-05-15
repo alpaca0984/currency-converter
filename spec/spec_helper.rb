@@ -16,6 +16,7 @@
 
 require_relative '../boot'
 require_relative './support/factory_bot'
+require_relative './support/helper_methods'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
