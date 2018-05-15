@@ -9,12 +9,12 @@ class CurrencyConverter
   VALID_CURRENCY_FORMAT = /\A[A-Z]{3}\z/
 
   attribute :date, :date
-  attribute :amount_in_currency_from, :decimal
+  attribute :amount_in_currency_from, :integer
   attribute :currency_from, :string
   attribute :currency_to, :string
 
   validates :date, presence: true
-  validates :amount_in_currency_from, numericality: { greater_than: 0 }
+  validates :amount_in_currency_from, numericality: { only_integer: true, greater_than: 0 }
   validates :currency_from, :currency_to,
     format: { with: VALID_CURRENCY_FORMAT, message: 'accepts only three charactors of upper case' }
   validate :date_cannot_be_in_the_future, :currencies_must_be_valid_one
