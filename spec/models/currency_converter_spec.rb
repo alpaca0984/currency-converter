@@ -79,8 +79,8 @@ RSpec.describe CurrencyConverter do
 
     context 'when convert 10,000 JPY to AUD at 1900-01-01' do
       let(:converter) { build(:currency_converter, date: '1900-01-01') }
-      let(:message_pattern) { /Historical rates for the requested date are not available/ }
-      it { expect { subject }.to raise_error(CurrencyConverter::ConversionError, message_pattern) }
+      it { expect { subject }.to raise_error(CurrencyConverter::ConversionError,
+        /Historical rates for the requested date are not available/) }
     end
 
     context 'when convert 10,000 JPY to ZWL at 2000-01-01' do
@@ -90,8 +90,8 @@ RSpec.describe CurrencyConverter do
           date: '2000-01-01', amount_in_currency_from: 10_000, currency_from: 'JPY', currency_to: 'ZWL'
         )
       end
-      let(:message_pattern) { /Rates didn't exist for ZWL at 2000-01-01/ }
-      it { expect { subject }.to raise_error(CurrencyConverter::ConversionError, message_pattern) }
+      it { expect { subject }.to raise_error(CurrencyConverter::ConversionError,
+        /Rates didn't exist for ZWL at 2000-01-01/) }
     end
   end
 end
