@@ -22,7 +22,6 @@ class OpenExchangeRatesClient
     Net::HTTP.get(currencies_url)
   end
 
-  # TODO: check having app_id
   def fetch_historical_for(date:)
     validate!
     historical_url = base_url.tap do |url|

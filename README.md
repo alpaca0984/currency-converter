@@ -52,6 +52,13 @@ $ bundle exec rspec spec/models/open_exchange_rates_client_spec.rb
 
 ## My consideration
 
+__Accuracy__
+
+- Used decimal to calculate exchange rates because because floats cannot accurately represent the base 10 multiples that we use for money
+    - It's explained [here](https://stackoverflow.com/questions/3730019/why-not-use-double-or-float-to-represent-currency)
+    - [RubyMoney](https://github.com/RubyMoney/money/blob/master/lib/money/money/arithmetic.rb#L178) also does so
+- Wrote RSpec tests to assure specifications
+
 __Maintenability__
 
 - Used a cutting edge feature of activemodel: `ActiveModel::Attributes` to treat attributes strictly
@@ -61,8 +68,7 @@ __Maintenability__
 
 __Security__
 
-- Validates parameters strictly because this scripts calculate money
-- Wrote RSpec tests to assure specifications
+- Validates parameters strictly with both built-in validator and custom validator
 - Excluded api key from repository
 
 __Performance__
