@@ -20,8 +20,8 @@ $ bundle install --path vendor/bundle
 
 And then, set your app_id to config/secret.rb
 ```
-$ mv config/secret.rb.temp config/secret.rb
-$ vim config/secret.rb
+$ mv config/secrets.rb.temp config/secrets.rb
+$ vim config/secrets.rb
 ```
 
 Finally, you can execute calculattion! Result is rounded down to the two decimal.
