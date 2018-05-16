@@ -50,9 +50,8 @@ class CurrencyConverter
 
   def convert
     convert!
-  rescue StandardError => e
-    # TODO: use `e` for handling errors
-    nil
+  rescue
+    false
   end
 
   def api_client
