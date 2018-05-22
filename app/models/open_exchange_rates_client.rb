@@ -4,8 +4,6 @@ class OpenExchangeRatesClient
   include ActiveModel::Validations
   include ActiveModel::Attributes
 
-  DEFAULT_HTTP_ATTRIBUTES = { use_ssl: true }.freeze
-
   attribute :app_id, :string
 
   validates :app_id, presence: true
@@ -17,28 +15,27 @@ class OpenExchangeRatesClient
     )
   end
 
-  def fetch_currencies(**options)
+  def fetch_currencies
     currencies_url = base_url.tap do |url|
       url.path << '/currencies.json'
     end
-    fetch(currencies_url, options)
+    fetch(currencies_url)
   end
 
-  def fetch_historical_for(date:, **options)
+  def fetch_historical_for(date:)
     validate!
     historical_url = base_url.tap do |url|
       url.path << "/historical/#{date.to_date.strftime('%F')}.json"
       url.query = "app_id=#{app_id}"
     end
-    fetch(historical_url, options)
+    fetch(historical_url)
   end
 
   private
 
-  def fetch(uri, **options)
+  def fetch(uri)
     result = perform do
-      http_attributes = DEFAULT_HTTP_ATTRIBUTES.merge(options.symbolize_keys)
-      Net::HTTP.start(uri.host, uri.port, http_attributes) do |http|
+      Net::HTTP.start(uri.host, uri.port) do |http|
         request = Net::HTTP::Get.new(uri)
         response = http.request(request)
         response.value
