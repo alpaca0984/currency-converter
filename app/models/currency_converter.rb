@@ -24,7 +24,7 @@ class CurrencyConverter
   class ConversionError < ::StandardError; end
 
   def self.currencies
-    @currencies ||= JSON.parse(OpenExchangeRatesClient.new.fetch_currencies)
+    @currencies ||= JSON.parse(OpenExchangeRatesClient.new.fetch_currencies(open_timeout: 10, read_timeout: 10))
   end
 
   def api_app_id=(app_id)
@@ -34,7 +34,10 @@ class CurrencyConverter
   def convert!
     validate!
 
-    ratio_mapping = JSON.parse(api_client.fetch_historical_for(date: date))
+    ratio_mapping = JSON.parse(api_client.fetch_historical_for(date: date, open_timeout: 10, read_timeout: 10))
+    if ratio_mapping.blank?
+      raise ConversionError, "Couldn't fetch historical ratio"
+    end
     if ratio_mapping.key?('error')
       raise ConversionError, ratio_mapping['description']
     end

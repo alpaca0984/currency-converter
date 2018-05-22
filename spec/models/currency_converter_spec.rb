@@ -52,7 +52,7 @@ RSpec.describe CurrencyConverter do
     subject { converter.convert! }
     let(:client) { build(:open_exchange_rates_client) }
     before(:each) do
-      allow(client).to receive(:fetch_historical_for).with(date: converter.date).and_return(load_json(converter.date.strftime('%F')))
+      allow(client).to receive(:fetch_historical_for).with(date: converter.date, open_timeout: 10, read_timeout: 10).and_return(load_json(converter.date.strftime('%F')))
       allow(converter).to receive(:api_client).and_return(client)
       allow(converter).to receive(:currencies).and_return(JSON.parse(load_json('currencies')))
     end
