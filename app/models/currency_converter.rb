@@ -35,6 +35,9 @@ class CurrencyConverter
     validate!
 
     ratio_mapping = JSON.parse(api_client.fetch_historical_for(date: date))
+    if ratio_mapping.blank?
+      raise ConversionError, "Couldn't fetch historical ratio"
+    end
     if ratio_mapping.key?('error')
       raise ConversionError, ratio_mapping['description']
     end
